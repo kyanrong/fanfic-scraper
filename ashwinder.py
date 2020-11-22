@@ -42,7 +42,9 @@ def get_chapter(driver, chapter_php):
 	arr = []
 	for x in contents:
 		x = str(x)
-		arr.append(x)
+		x = x.strip()
+		if x != '\n':
+			arr.append(x)
 
 	return ''.join(arr)
 

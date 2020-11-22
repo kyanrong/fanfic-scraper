@@ -1,6 +1,6 @@
 # fanfic-scraper
 Scrape your favourite fanfics.  
-Scraped fanfics are saved as a .docx file for further formatting.
+Scraped fanfics are saved as a .docx file for further formatting because scraped formatting isn't perfect.
 
 Currently supporting:
 - fanfiction.net
