@@ -20,14 +20,21 @@ def get_metadata(driver, story_id):
 	page = driver.page_source
 	soup = BeautifulSoup(page, 'html.parser')
 
-	title = soup.find('h4').string
-	
-	table = soup.find_all('table')[-1]
-	author = table.find('a', href=lambda x: x.startswith('viewuser')).string
-
 	chapters = []
-	for row in table.find_all('tr'):
-		chapters.append(row.find('a')['href'])
+
+	title = soup.find('h4')
+	
+	if title is not None:
+		title = title.string
+		table = soup.find_all('table')[-1]
+		author = table.find('a', href=lambda x: x.startswith('viewuser')).string
+		for row in table.find_all('tr'):
+			chapters.append(row.find('a')['href'])
+	else:
+		table = soup.find_all('table')[0]
+		title = table.find('a', href=lambda x: x.startswith('viewstory')).string
+		author = table.find('a', href=lambda x: x.startswith('viewuser')).string
+		chapters.append('{}{}'.format(story_php, story_id))
 
 	return (title, author, chapters)
 
