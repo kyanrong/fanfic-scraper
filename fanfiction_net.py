@@ -1,15 +1,18 @@
-import requests
 import time
 from bs4 import BeautifulSoup
 from html2docx import html2docx
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 
+driver_path = './chromedriver.exe'
 base_url = 'https://fanfiction.net/s'
 
 
-def get_metadata(url):
-	page = requests.get(url)
-	soup = BeautifulSoup(page.content, 'html.parser')
+def get_metadata(driver, url):
+	driver.get(url)
+	page = driver.page_source
+	soup = BeautifulSoup(page, 'html.parser')
 
 	metadata = soup.find(id='profile_top')
 	metadata_text = metadata.find(class_='xgray xcontrast_txt').text
@@ -29,9 +32,10 @@ def get_metadata(url):
 	return (title, author, synopsis, chapters)
 
 
-def get_chapter(url):
-	page = requests.get(url)
-	soup = BeautifulSoup(page.content, 'html.parser')
+def get_chapter(driver, url):
+	driver.get(url)
+	page = driver.page_source
+	soup = BeautifulSoup(page, 'html.parser')
 
 	paragraphs = soup.find(id='storytext').contents
 	arr = []
@@ -50,7 +54,13 @@ def get_chapter(url):
 def scrape(story_id):
 	print('Scraping from FanFiction.net')
 
-	(title, author, synopsis, chapters) = get_metadata('{}/{}'.format(base_url, story_id))
+	options = Options()
+	options.add_experimental_option("excludeSwitches", ["enable-automation"])
+	options.add_experimental_option('useAutomationExtension', False)
+	options.add_argument("--disable-blink-features=AutomationControlled")
+	driver = webdriver.Chrome(options=options, executable_path=driver_path)
+
+	(title, author, synopsis, chapters) = get_metadata(driver, '{}/{}'.format(base_url, story_id))
 	title_html = '<p style="text-align:center"><strong>{}</strong></p>'.format(title)
 	author_html = '<p style="text-align:center">by {}</p>'.format(author)
 	synopsis_html = '<p><em>{}</em></p>'.format(synopsis)
@@ -62,7 +72,7 @@ def scrape(story_id):
 	for chapter in range(1, chapters+1):
 		print('Chapter {}/{}'.format(chapter, chapters))
 		url = '{}/{}/{}'.format(base_url, story_id, chapter)
-		content = get_chapter(url)
+		content = get_chapter(driver, url)
 		all_html.append(content)
 		time.sleep(1)
 

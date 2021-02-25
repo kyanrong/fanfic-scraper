@@ -1,4 +1,3 @@
-import requests
 import time
 import yaml
 from bs4 import BeautifulSoup
